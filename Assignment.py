@@ -71,6 +71,7 @@ if category == "By City, State, and Country":
                                 aqi = data["pollution"]["aqius"]
                                 # Check if location and coordinates are present
                             if "location" in aqi_data_dict["data"] and "coordinates" in aqi_data_dict["data"]["location"]:
+                                print("Here")
                                 latitude = data["location"]["coordinates"][1]
                                 longitude = data["location"]["coordinates"][0]
 
