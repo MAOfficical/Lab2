@@ -42,7 +42,7 @@ if category == "By City, State, and Country":
         countries_list = [i["country"] for i in countries_dict["data"]]
         countries_list.insert(0, "")
         country_selected = st.selectbox("Select a country", options=countries_list)
-        st.write("Countries Response:", countries_dict)
+      
 
         if country_selected:
             states_dict = generate_list_of_states(country_selected)
@@ -57,12 +57,13 @@ if category == "By City, State, and Country":
                         cities_list = [i["city"] for i in cities_dict["data"]]
                         cities_list.insert(0, "")
                         city_selected = st.selectbox("Select a city", options=cities_list)
-                        st.write("States Response:", states_dict)
+                      
 
                         if city_selected:
                             aqi_data_url = f"https://api.airvisual.com/v2/city?city={city_selected}&state={state_selected}&country={country_selected}&key={api_key}"
                             aqi_data_dict = requests.get(aqi_data_url).json()
-                            st.write("Cities Response:", cities_dict)
+                            
+
                             if aqi_data_dict["status"] == "success":
                                 data = aqi_data_dict["data"]["current"]
                                 temperature = data["weather"]["tp"]
