@@ -4,7 +4,7 @@ from streamlit_folium import folium_static
 import folium
 
 # Replace with your actual API key
-api_key = "include your api key here"
+api_key = "626a5e48-a0cc-4c98-9a02-2cec079813c9"
 
 st.title("Weather and Air Quality Web App")
 st.header("Streamlit and AirVisual API")
@@ -33,7 +33,7 @@ def generate_list_of_cities(state_selected, country_selected):
     cities_dict = requests.get(cities_url).json()
     return cities_dict
 
-# Location selection method
+
 category = st.selectbox("Choose location method", ["By City, State, and Country", "By Nearest City (IP Address)", "By Latitude and Longitude"])
 
 if category == "By City, State, and Country":
