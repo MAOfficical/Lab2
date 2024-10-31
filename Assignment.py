@@ -124,3 +124,5 @@ elif category == "By Latitude and Longitude":
                 map_creator(latitude, longitude)
             else:
                 st.warning("No data available for this location.")
+        finally: 
+            print("")
