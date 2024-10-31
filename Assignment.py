@@ -105,4 +105,5 @@ elif category == "By Nearest City (IP Address)":
     else:
         st.warning("No data available for this location.")
 
-elif category == "By Latitude
+elif category == "By Latitude":
+    print("do")
