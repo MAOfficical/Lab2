@@ -3,7 +3,6 @@ import requests
 from streamlit_folium import folium_static
 import folium
 
-# Replace with your actual API key
 api_key = "626a5e48-a0cc-4c98-9a02-2cec079813c9"
 
 st.title("Weather and Air Quality Web App")
@@ -18,21 +17,17 @@ def map_creator(latitude, longitude):
 @st.cache_data
 def generate_list_of_countries():
     countries_url = f"https://api.airvisual.com/v2/countries?key={api_key}"
-    countries_dict = requests.get(countries_url).json()
-    return countries_dict
+    return requests.get(countries_url).json()
 
 @st.cache_data
 def generate_list_of_states(country_selected):
     states_url = f"https://api.airvisual.com/v2/states?country={country_selected}&key={api_key}"
-    states_dict = requests.get(states_url).json()
-    return states_dict
+    return requests.get(states_url).json()
 
 @st.cache_data
 def generate_list_of_cities(state_selected, country_selected):
     cities_url = f"https://api.airvisual.com/v2/cities?state={state_selected}&country={country_selected}&key={api_key}"
-    cities_dict = requests.get(cities_url).json()
-    return cities_dict
-
+    return requests.get(cities_url).json()
 
 category = st.selectbox("Choose location method", ["By City, State, and Country", "By Nearest City (IP Address)", "By Latitude and Longitude"])
 
@@ -42,7 +37,6 @@ if category == "By City, State, and Country":
         countries_list = [i["country"] for i in countries_dict["data"]]
         countries_list.insert(0, "")
         country_selected = st.selectbox("Select a country", options=countries_list)
-      
 
         if country_selected:
             states_dict = generate_list_of_states(country_selected)
@@ -57,37 +51,36 @@ if category == "By City, State, and Country":
                         cities_list = [i["city"] for i in cities_dict["data"]]
                         cities_list.insert(0, "")
                         city_selected = st.selectbox("Select a city", options=cities_list)
-                      
 
                         if city_selected:
                             aqi_data_url = f"https://api.airvisual.com/v2/city?city={city_selected}&state={state_selected}&country={country_selected}&key={api_key}"
                             aqi_data_dict = requests.get(aqi_data_url).json()
-                            
 
                             if aqi_data_dict["status"] == "success":
                                 data = aqi_data_dict["data"]["current"]
                                 temperature = data["weather"]["tp"]
                                 humidity = data["weather"]["hu"]
                                 aqi = data["pollution"]["aqius"]
-                                # Check if location and coordinates are present
-                            if "location" in aqi_data_dict["data"] and "coordinates" in aqi_data_dict["data"]["location"]:
-                                print("Here")
-                                latitude = data["location"]["coordinates"][1]
-                                longitude = data["location"]["coordinates"][0]
 
                                 st.write(f"Temperature: {temperature}°C")
                                 st.write(f"Humidity: {humidity}%")
                                 st.write(f"Air Quality Index (AQI): {aqi}")
-                                map_creator(latitude, longitude)
+                                
+                                if "location" in aqi_data_dict["data"] and "coordinates" in aqi_data_dict["data"]["location"]:
+                                    latitude = aqi_data_dict["data"]["location"]["coordinates"][1]
+                                    longitude = aqi_data_dict["data"]["location"]["coordinates"][0]
+                                    map_creator(latitude, longitude)
+                                
                             else:
                                 st.warning("No data available for this location.")
-                    else:
-                        st.warning("No cities available. Please select another state.")
-            else:
-                st.warning("No states available. Please select another country.")
-    else:
-        st.error("API request limit reached. Wait for a few minutes before your next request.")
 
+                    else:
+                        st.warning("No stations available, please select another state.")
+            else:
+                st.warning("No stations available, please select another country.")
+    else:
+        st.error("Too many requests. Wait for a few minutes before your next API call.")
+        
 elif category == "By Nearest City (IP Address)":
     url = f"https://api.airvisual.com/v2/nearest_city?key={api_key}"
     aqi_data_dict = requests.get(url).json()
@@ -97,38 +90,35 @@ elif category == "By Nearest City (IP Address)":
         temperature = data["weather"]["tp"]
         humidity = data["weather"]["hu"]
         aqi = data["pollution"]["aqius"]
-        latitude = data["location"]["coordinates"][1]
-        longitude = data["location"]["coordinates"][0]
+        latitude = aqi_data_dict["data"]["location"]["coordinates"][1]
+        longitude = aqi_data_dict["data"]["location"]["coordinates"][0]
 
         st.write(f"Temperature: {temperature}°C")
         st.write(f"Humidity: {humidity}%")
         st.write(f"Air Quality Index (AQI): {aqi}")
         map_creator(latitude, longitude)
-    else:
-        st.warning("No data available for this location.")
 
 elif category == "By Latitude and Longitude":
     latitude = st.text_input("Enter Latitude")
     longitude = st.text_input("Enter Longitude")
 
     if latitude and longitude:
-        try:
-            latitude = float(latitude)
-            longitude = float(longitude)
-            url = f"https://api.airvisual.com/v2/nearest_city?lat={latitude}&lon={longitude}&key={api_key}"
-            aqi_data_dict = requests.get(url).json()
+        latitude = float(latitude)
+        longitude = float(longitude)
+        url = f"https://api.airvisual.com/v2/nearest_city?lat={latitude}&lon={longitude}&key={api_key}"
+        aqi_data_dict = requests.get(url).json()
 
-            if aqi_data_dict["status"] == "success":
-                data = aqi_data_dict["data"]["current"]
-                temperature = data["weather"]["tp"]
-                humidity = data["weather"]["hu"]
-                aqi = data["pollution"]["aqius"]
+        if aqi_data_dict["status"] == "success":
+            data = aqi_data_dict["data"]["current"]
+            temperature = data["weather"]["tp"]
+            humidity = data["weather"]["hu"]
+            aqi = data["pollution"]["aqius"]
 
-                st.write(f"Temperature: {temperature}°C")
-                st.write(f"Humidity: {humidity}%")
-                st.write(f"Air Quality Index (AQI): {aqi}")
-                map_creator(latitude, longitude)
-            else:
-                st.warning("No data available for this location.")
-        finally: 
-            print("")
+            st.write(f"Temperature: {temperature}°C")
+            st.write(f"Humidity: {humidity}%")
+            st.write(f"Air Quality Index (AQI): {aqi}")
+            map_creator(latitude, longitude)
+        else:
+            st.warning("No data available for this location.")
+
+      
